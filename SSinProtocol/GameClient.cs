@@ -144,7 +144,7 @@ namespace PROProtocol
         public event Action ActivePokemonChanged;
         public event Action OpponentChanged;
         
-        private const string Version = "Halloween20_v2";
+        private const string Version = "Halloween 23 v1";
 
         private GameConnection _connection;
         private DateTime _lastMovement;
@@ -220,6 +220,8 @@ namespace PROProtocol
 
         public void Close(Exception error = null)
         {
+            LogMessage("Quitting...");
+            SendPacket("quit");
             _connection.Close(error);
         }
 
@@ -558,8 +560,11 @@ namespace PROProtocol
 
         public void SendAuthentication(string username, string password, Guid deviceId)
         {
+            var pro_password = Environment.GetEnvironmentVariable("PRO_PASSWORD", EnvironmentVariableTarget.User);
+            var pro_hash = Environment.GetEnvironmentVariable("PRO_HARDWARE_HASH", EnvironmentVariableTarget.User);
             // DSSock.AttemptLogin
-            SendPacket("+|.|" + username + "|.|" + password + "|.|" + Version + "|.|" + Encryption.FixDeviceId(deviceId) + "|.|" + "Windows 10  (10.0.0) 64bit");
+            //SendPacket("+|.|" + username + "|.|" + password + "|.|" + Version + "|.|" + Encryption.FixDeviceId(deviceId) + "|.|" + "Windows 10  (10.0.0) 64bit");
+            SendPacket("+|.|" + username + "|.|" + pro_password + "|.|" + Version + "|.|" + pro_hash + "|.|" + "Windows 11  (10.0.22621) 64bit");
             // TODO: Add an option to select the OS we want, it could be useful.
             // I use Windows 10 here because the version is the same for everyone. This is not the case on Windows 7 or Mac.
         }
@@ -2136,7 +2141,7 @@ namespace PROProtocol
                 ChannelSystemMessage?.Invoke(channelName, message);
                 return;
             }
-            if (chatData[0] != "*G*System")
+            if ((chatData[0] != "*G*System") && (chatData[0] != "[40FF00]System"))
             {
                 string channelName = null;
                 string mode = null;

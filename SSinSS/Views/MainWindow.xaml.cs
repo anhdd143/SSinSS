@@ -476,7 +476,7 @@ namespace PROShine
         {
             LogMessage("Logging out...");
             lock (Bot)
-            {
+            {   
                 Bot.Logout(false);
             }
         }
